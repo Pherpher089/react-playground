@@ -1,5 +1,7 @@
 # Responsibility of Things
 
+`Different kinds of change should not collide in the same place.`
+
 ## On Sentence Definition
 
 > A thing should have a clear reason to change
@@ -295,8 +297,161 @@ function OrdersDashboard() {
 }
 ```
 
-1. What is its responsibility?
+1. What is OrdersDashboard responsible for?
 
-2. List everything else it currently does.
+```md
+- This component fetched and filtering data, handles errors related to that process, handles bulk actions as well as renders the dashboard.
+```
 
-3. Which responsibility does not belong there?
+## What Responsibilities Are Mixed Here?
+
+1. Data fetching (infastructure)
+
+- Calls `/api/orders`
+- Handles loading error
+
+2. Server Side Mutation
+
+- Calls `/api/orders/cancel`
+
+3. Domain Logic
+
+- Filtering by order status
+- Selecting/deselecting orders
+
+4. UI State
+
+- Which checkboxes are checked
+- which filter is active
+
+5. Presentation
+
+- Rendering lst
+- Rendering filters
+- Rendering buttons
+- rendering error/loading stats
+
+6. Side Effects
+
+- aleart() notifications
+
+# Exersise 1.2
+
+1. What should this component be responsible for?
+   I think this component should be responsible for composign the individual aspects of this Dashboard and managin the UI state which is passed as props into the individual components
+
+2. What responsibilities clearly do not belong here?
+   Data fetching, filtering, rendering UI and throwing errors all donot belong here.
+
+3. What would cause this file to change most often?
+   Andy updates to the way the dashboard looked or worked would change this file. For instance, when the stakeholders want a different layout, or a new kind of filter, this component would change.
+
+4. What change would be painful right now?
+   I think the most painful kind of change would be using bulk select somewhere else (stollen from your later notes)
+
+#
+
+## Senior Refactoring Direction
+
+Here's how a senior dev would _mentally_ break this up
+
+`useOrders()` Fetch orders, expose loading/error
+`useOrderFilter()` Filter logic (pure, testable)
+`useBulkSelection()` Selection state + helpers
+`useBulkCancelOrders()` Mutation + side effects
+`OrdersDashboard` Orchestrate hooks
+`OrdersListView` Render UI
+
+Each one: - Has one reason to change - Can be tested or reused independently - Can be deleteted without nuking everything
+
+#
+
+# Mini rule that will save you constantly
+
+When you're unsure if somthing belongs in the dashboard:
+"Props are allowed; implementations are not"
+
+- Passing `onCancelSelected` ✅
+- Writing `fetch('/api/orders/cancel')`inside the dashboard ❌
+- Passing `filter` and `onFilterChange` ✅
+- Writing the filtering algorithm in the dashboard ❌ (put in a pure function/hook)
+
+# Exersise 1.3
+
+What is the dashboard **NOT** responsible for
+
+- The dashboard is not responisble for filtering logic
+- The dashboard is not responsible for fetching orders data
+- The dashboard is not responisble for rendering the data lists
+  - _Correction (The dashboard is not responsible for how the data lists are rendered.)_
+- The dashboard is not responsible for handling api erros
+- The dashboard is not responsible for mutations such as cancleing the orders request
+
+Foot Notes:
+
+## What is a side effect?
+
+    - Anything your code does that effects the world outside it's own return value
+
+Why side effects matter for responsibility
+Side Effects:
+
+- Are hard to test
+- Are hard to undo
+- Tend to break in weird ways
+- Ripple acrross the app
+
+This is why we contain them, not scatter them.
+
+A dashboard component should request side effects, not perform them.
+
+### Mental Model to memorize
+
+> UI asks for effects. Hooks perform effects.
+
+## What is a mutation
+
+### Simple definition
+
+A mutation is:
+
+> Any operation that changes existing data.
+> In Contrast:
+
+- Query -> reads data
+- Mutation -> Changes data
+
+Example (Frontend Context)
+Fetch orders Query
+Cancel orders Mutation
+Update user Name Mutation
+Creat new ordre Mutation
+Delete an ordre Mutation
+
+### Key Distinction
+
+❌ Mutation = API call
+✅ Mutation = state change in the system
+
+The system might be:
+
+- Your backend
+- Your frontend cache
+- Global app state
+
+# Responsibility Summary
+
+Dashboard
+
+- Owns UI coordination
+- Owns shared UI state
+- Delegates Queries
+- Delegates mutations
+- Never performs side effects directly
+
+Hooks/Services
+
+- Performs side effects
+- Contains mutations
+- Handels error mapping
+- Talks to infastructure
