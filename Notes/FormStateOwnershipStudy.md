@@ -159,4 +159,32 @@ Either is acceptable: the key is **don't bury navigatoin inside low-level API ut
 
 #
 
-###
+### Step 3: The "wrong placement"
+
+❌ Wrong: Put validation rules inside each input component
+
+Example: TitleInput runs it's own title validation, `DueDateInput` runs date rules.
+
+What breaks:
+
+- cross-field rules become impossible (e.g. due date required only for priority 5)
+- Submit button validity becomes a mess
+- rules duplicated across screens
+- test become UI-drivin instead of logic drivin
+
+This is responsibility collision:
+
+- UI layer now owns business meaning
+
+# The practical Checklist
+
+For each "state-like" thing, ask:
+
+1. Is it stored, or can it be derived?
+   Derived -> compute it
+2. Who makes decisions with it?
+   Thats the owner
+3. Does it come from the outside world?
+   If yes -> server/infastructure layer (query/mutation)
+4. Is it purely about UI behavior?
+   If yes -> keep it local, don't globalize it.

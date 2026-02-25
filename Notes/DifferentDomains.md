@@ -116,3 +116,11 @@ What would cause it to change
 - platform differences
 
 This is where side effects live.
+
+#
+
+### Exersize (corrected)
+
+1. `showErrors` -> UI state(form hook/component)
+2. `prioritySuggestion` -> Domain rule (pure function) + applied by form (feature/UI coordination)
+3. `serverErrorMessage` -> Feature/UI state (sourced from infra/mutation)
