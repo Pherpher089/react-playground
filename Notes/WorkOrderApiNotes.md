@@ -294,3 +294,38 @@ Why?
 Because they have different IDs.
 
 Identity matters.
+
+#
+
+## Entity Rule
+
+> Entities are defined by identity, not by their values.
+
+Even if every proerty changes, the entity is still the same entitiy because the identity is the same.
+
+#
+
+## What is a Value Object
+
+A value Object:
+
+- Has no identity
+- Is defined entirely by its values
+- Is immutable
+- Two values objects with the same values are equal
+
+Examin my system:
+
+```C#
+public readonly record struct UserId(Guid Value);
+```
+
+if two `UserId`s have the same Guid -> they are equal.
+
+Another example:
+
+if we had:
+
+```C#
+public record Name(string First, string Last);
+```
