@@ -172,7 +172,7 @@ I used a `record struct`
 
 #
 
-## what odes `record`give you?
+## what does `record` give you?
 
 it automatically gives:
 
@@ -329,3 +329,5 @@ if we had:
 ```C#
 public record Name(string First, string Last);
 ```
+
+If two Names contain the same Fist and Last name -> they are equal
