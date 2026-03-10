@@ -147,3 +147,173 @@ Where you call:
 ```C#
 await db.SaveChangesAsync();
 ```
+
+EF generates:
+
+```SQL
+INSERT
+UPDATE
+DELETE
+```
+
+statements for anything being tracked.
+
+#
+
+## Mental Model
+
+you can think of `DbContext` as:
+
+Application Code > DbContext > Database
+
+It is the gateway to the database.
+
+#
+
+What is the `DbContextOptions<T>`
+
+```C#
+public WorkOrderDeskContext(DbContextOptions<WorkOrderDeskContext> options)
+    : base(options);
+```
+
+This is **Configuration information for the context**.
+
+Examples of what goes inside `DbContextOptions`:
+
+- Which database provide to use (SQLite, SQL Server, Postgress)
+- Connection string
+- Logging options
+- Query behavior
+- Migrations assembly
+
+Example when we wire it later:
+
+```C#
+builder.Services.AddDbContext<WorkOrderDeskContext>(options =>
+{
+  options.UseSqlite("Data Source=workorders.db");
+})
+```
+
+That configuration is stored inside the DbContextOptions.
+
+#
+
+## Why pass it to base(options)?
+
+Because the parent class (DbContext) needs that configuration.
+
+It means:
+
+> Call the base constructor of DbContext and give it these options.
+
+Without that, EF wouldn't know:
+
+- what database to connect to
+- how to translate queries
+- where migrations live
+
+#
+
+## What is the `=>` syntax?
+
+This is called an **expression-bodied member**.
+
+Example:
+
+```C#
+public DbSet<workOrder> WorkOrders => Set<WorkOrder>();
+```
+
+This is shorthand for:
+
+```C#
+Public DbSet<WorkOrder> WorkOrders
+{
+  get
+  {
+    return Set<WorkOrder>();
+  }
+}
+```
+
+So `=>` just means return the result of this expression.
+
+#
+
+Why use it here?
+Cleaner syntax for simple properties.
+
+#
+
+## What is `Set<T>()`
+
+This is a method on the `DbContext`.
+
+It returns the `DbSet` for a given entity type.
+
+So this:
+
+```C#
+public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+```
+
+means:
+
+> Give me the EF collection that represents the WorkOrders table.
+
+#
+
+## What is a "model" in `OnModelCreating`?
+
+In EF Core, the model means:
+
+> The map between your C# domain classes and the database schema.
+
+### So what is `OnModelCreating` doing?
+
+It is where EF builds that mapping.
+
+EF builds an internal object called:
+
+`IModel`
+
+Which contains:
+
+- entities
+- keys
+- indexes
+- releationships
+- column types
+- constraints
+
+Example configuration:
+
+```C#
+modelBuilder.Entity<WorkOrder>()
+    .Property(x => x.Title)
+    .HasMaxLength(100)
+    .IsRequired();
+```
+
+That tells EF:
+
+```SQL
+Title VARCHAR(100) NOT NULL
+```
+
+### What happens during startup
+
+When the app starts:
+
+1️⃣ EF scans the DbContext
+2️⃣ EF runs OnModelCreating
+3️⃣ EF builds the model metadata
+4️⃣ EF caches that model for performance
+
+This metadata is used for:
+
+- migrations
+- query translation
+- change tracking
