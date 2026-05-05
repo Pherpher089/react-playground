@@ -685,6 +685,7 @@ func main() {
 ```
 
 ## Methods
+
 Go has no classes but you can define methods on types.
 
 Methods are functions with a special reciever argument.
@@ -745,11 +746,10 @@ The second is to avoid copying the value on each method call. This can be more e
 In general, all methods on a given type should have either value or pointer receivers, but not a mixture of both.
 
 ## Interfaces
+
 An interface type is defined as a set of method signatures.
 
 A value of interface type can hold any value that implements those methods.
-
-
 
 ```go
 type Abser interface {
@@ -815,6 +815,7 @@ func main() {
 	i.M()
 }
 ```
+
 ## Interface values
 
 Under the hood, interface values can be thought of as a touple of a value and a concrete type:
@@ -853,14 +854,14 @@ func describe(i interface{}) {
 }
 ```
 
-
-
 ## Type assertions
 
 A type assertion provides access to an interface value's underlying concrete value.
+
 ```go
 t := i.(T)
 ```
+
 This statement asserts that the interface value i holds the concrete type T and assigns the underlying T value to the variable t.
 
 If i does not hold a T, the statement will trigger a panic.
@@ -870,6 +871,7 @@ To test whether an interface value holds a specific type, a type assertion can r
 ```go
 t, ok := i.(T)
 ```
+
 If i holds a T, then t will be the underlying value and ok will be true.
 
 If not, ok will be false and t will be the zero value of type T, and no panic occurs.
@@ -895,6 +897,7 @@ func main() {
 ```
 
 ### Type Switch
+
 A Type switch is a construct that permist serveral type assertions in series.
 
 A type switch is like a regular switch, but the cases in a stype switch specify types (not values), and those values are compared agains the type fot he value held by the givin interface value.
@@ -945,7 +948,6 @@ Note that there is also a reader for reading files in or out.
 
 Can also handle and generate imagese.
 
-
 ## Goroutines
 
 A goroutine is a lightweight thread manage by the go runtime.
@@ -991,6 +993,42 @@ Channels can be buffered. Provide the buffer length as the second argument to ma
 ```go
 ch := make(chan int, 100)'
 ```
+
 Sends to a buffered channel block only when the buffer is full. Receives block when the buffer is empty.
 
 Modify the example to overfill the buffer and see what happens.
+
+### Range and Close
+
+A sender can `close` a channel to indicate that no more values will be sent. Receivers can test whether a chennel has been closed by assigning a second parameter to the receive expression: after
+
+```go
+v, ok := <-Ch
+```
+
+`ok` is false if there are no more values to recieve and the channel is closed.
+
+The loop `for i := range c` recieves values from the channel repeatedly until it is closed.
+
+**Note:** Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
+
+**Another Note** Channels aren't like files; you don't usually need to close them. Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a `range` loop.
+
+```go
+func fibonacci(n int, c chan int) {
+	x, y := 0, 1
+	for i := 0; i < n; i++ {
+		c <- x
+		x, y = y, x+y
+	}
+	close(c)
+}
+
+func main() {
+	c := make(chan int, 10)
+	go fibonacci(cap(c), c)
+	for i := range c {
+		fmt.Println(i)
+	}
+}
+```
