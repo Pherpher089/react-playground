@@ -1,0 +1,30 @@
+# LLM Prompting
+
+## Coding with Claude
+
+Claude works better when you commuicated converstationally. Tell him what you want, what you have tried, what didn't work. The more context, the more useful he becomes. Think of it like pair programming with a senior dev who can't see your screen unless you describe it.
+
+For writing good prompts:
+
+> Context -> Task -> Constraints -> Format
+
+Not every prompt needs all four, but knowing the framework helps. For example:
+
+A weak prompt: "Write a funciton to filter taks"
+
+A strong prompt: "I'm building a Go REST API with an in-memory slice of Task structs (each has Title string, Done bool, Priority string). Write a function that takes a slice of Tasks and a priority string and returns only the tasks matching that priority. Use a pointer receiver isn't needed here — just a standalone function."
+
+This gives Claude all the context needed. Nothing for him to guess.
+
+**Four move that will impress interviewers**
+
+1. Give me your code, not just your problem. Past what you have and say "Here's what I've go, what's wrong/how do I extend this." This is far faster than describing the code in worlds.
+2. Ask for tradeoffs, not just answers. "Should I use a slice or a map here, and why?" ahows your thinking architecturally. Interviewers love that.
+3. Use me to check your work. After you write something yourself, ask me to review it: "Here's my implementation -- is there anything a Go developer would flag as non-idiomatic" That's a power move
+4. Iterate fast. If my answer isn't quite right, don't start over -- just say "close, but I need X instead of Y." Ihold the full context of the conversation.
+
+## Coding with Copilot
+
+5
+
+> Tip from Claude: Copilot reades what you are typing and tries to guess the next line.
